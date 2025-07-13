@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anthrax Screen</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <style>
+    @font-face {
+      font-family: 'Digital7';
+      src: url('/home/hexagon/projects/scary/fonts/digital-7.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    body {
+      margin: 0;
+      background: black;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    #timerScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: red;
+      font-family: 'Digital7', monospace;
+      font-size: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .text-top {
+      color: red;
+      font-size: 40px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-top: 40px;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .text-bottom {
+      color: red;
+      font-size: 25px;
+      letter-spacing: 1px;
+      margin-bottom: 30px;
+      text-align: center;
+      z-index: 10;
+    }
+
+    .container {
+      position: relative;
+      width: 100%;
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: -50px;
+    }
+
+    .fade-img,
+    .scene-img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 0.05s ease;
+    }
+
+    .fade-img {
+      opacity: 1;
+      mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        white 25%,
+        white 75%,
+        transparent 100%
+      );
+      -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        white 25%,
+        white 75%,
+        transparent 100%
+      );
+      box-shadow: 0 0 300px rgba(0, 0, 0, 0.95);
+      animation: shakeX 0.0375s infinite;
+    }
+
+    @keyframes shakeX {
+      0%   { transform: translate(-50%, -50%) translateX(0); }
+      25%  { transform: translate(-50%, -50%) translateX(-10px); }
+      50%  { transform: translate(-50%, -50%) translateX(10px); }
+      75%  { transform: translate(-50%, -50%) translateX(-5px); }
+      100% { transform: translate(-50%, -50%) translateX(0); }
+    }
+
+    .visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="timerScreen">
+    10
+  </div>
+
+  <div class="text-top" id="topText">
+    ANTHRAX SYSTEM
+  </div>
+
+  <div class="container">
+    <img src="/home/hexagon/projects/scary/pictures/hexagon.jpg" alt="Medico Mask" class="fade-img" id="medico" />
+
+    <img src="/home/hexagon/projects/scary/pictures/forest.png" alt="Scene1" class="scene-img" id="scene1" />
+    <img src="//home/hexagon/projects/scary/pictures/scary-pic-2.jpg" alt="Scene2" class="scene-img" id="scene2" />
+    <img src="/home/hexagon/projects/scary/pictures/scary-pic-3.jpg" alt="Scene3" class="scene-img" id="scene3" />
+    <img src="/home/hexagon/projects/scary/pictures/scary-pic-4.jpg" alt="Scene4" class="scene-img" id="scene4" />
+    <img src="/home/hexagon/projects/scary/pictures/scary-pic-5.jpg" alt="Scene5" class="scene-img" id="scene5" />
+    <img src="/home/hexagon/projects/scary/pictures/scary-pic-6.jpg" alt="Scene6" class="scene-img" id="scene6" />
+  </div>
+
+  <div class="text-bottom" id="bottomText">
+    Be careful where you go. Know your limits.
+  </div>
+
+  <audio id="glitchSound" src="/home/hexagon/projects/scary/sounds/scary-scream.mp3" preload="auto"></audio>
+
+  <script>
+    const medico = document.getElementById("medico");
+    const glitchSound = document.getElementById("glitchSound");
+
+    const scenes = [
+      document.getElementById("scene1"),
+      document.getElementById("scene2"),
+      document.getElementById("scene3"),
+      document.getElementById("scene4"),
+      document.getElementById("scene5"),
+      document.getElementById("scene6"),
+    ];
+
+    function showScenes() {
+      glitchSound.currentTime = 0;
+      glitchSound.play();
+
+      medico.style.opacity = 0;
+
+      let i = 0;
+
+      function showNext() {
+        scenes.forEach(scene => scene.classList.remove("visible"));
+
+        if (i < scenes.length) {
+          scenes[i].classList.add("visible");
+          i++;
+          setTimeout(showNext, 100);
+        } else {
+          setTimeout(() => {
+            scenes.forEach(scene => scene.classList.remove("visible"));
+            medico.style.opacity = 1;
+          }, 100);
+        }
+      }
+
+      showNext();
+    }
+
+    // ---------- TIMER ----------
+    let counter = 10;
+    const timerScreen = document.getElementById("timerScreen");
+
+    const interval = setInterval(() => {
+      counter--;
+      if (counter > 0) {
+        timerScreen.textContent = counter;
+      } else {
+        clearInterval(interval);
+        timerScreen.remove();
+
+        setTimeout(() => {
+          showScenes();
+          scheduleNextScenes(20000); 
+        }, 10000);
+      }
+    }, 1000);
+
+    let intervalDelay = 20000;
+
+    function scheduleNextScenes(delay) {
+      setTimeout(() => {
+        showScenes();
+
+        intervalDelay += 10000;
+        scheduleNextScenes(intervalDelay);
+      }, delay);
+    }
+  </script>
+
+</body>
+</html>
